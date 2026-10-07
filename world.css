@@ -1,0 +1,189 @@
+/* =====================================================================
+   RPTN 3D story — section 3 onward (markup in index.html, motion in world.js)
+   One sticky WebGL world behind dark-glass cards; icons drawn by a second
+   WebGL layer into each card's .c3-icon slot.
+   ===================================================================== */
+
+.w3d{position:relative;background:#050505;isolation:isolate;overflow-x:clip}
+
+/* the world canvas sticks to the viewport for the length of the story, without taking up space */
+.w3d-sky{position:sticky;top:0;height:100vh;margin-bottom:-100vh;z-index:0;pointer-events:none}
+.w3d-sky canvas{display:block;width:100%;height:100%;opacity:0;transition:opacity 1.2s ease}
+.w3d.gl-on .w3d-sky canvas{opacity:1}
+/* keep the edges darker so text in the middle always reads */
+.w3d-sky::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 75% 70% at 50% 50%, transparent 35%, rgba(5,5,5,.72) 100%)}
+/* blend out of the About section above */
+.w3d-fade{position:absolute;top:0;left:0;right:0;height:45vh;z-index:1;pointer-events:none;background:linear-gradient(180deg, #000 0%, rgba(0,0,0,.6) 45%, transparent 100%)}
+.w3d-icons{position:fixed;inset:0;width:100vw;height:100vh;z-index:3;pointer-events:none;display:none}
+.w3d.gl-on .w3d-icons{display:block}
+
+/* ---------- chapters ---------- */
+.w3s{position:relative;z-index:2;padding:clamp(96px, 13vw, 170px) 0}
+.w3h{position:relative;max-width:900px;margin-bottom:clamp(40px, 6vw, 80px)}
+.w3h .h2{margin-top:22px}
+/* a soft pool of darkness behind headings keeps them clear of the 3D world */
+.w3h::before{content:"";position:absolute;inset:-60px -90px;z-index:-1;pointer-events:none;background:radial-gradient(ellipse 60% 60% at 35% 50%, rgba(5,5,5,.82), rgba(5,5,5,.5) 55%, transparent 75%)}
+.cta3 .wrap::before{content:"";position:absolute;inset:-40px 5%;z-index:-1;pointer-events:none;background:radial-gradient(ellipse 50% 50% at 50% 50%, rgba(5,5,5,.55), transparent 75%)}
+.w3h .lead, .w3h .body{margin-top:24px;max-width:720px}
+.w3s .h2, .w3s .lead, .w3s .body{text-shadow:0 2px 28px rgba(0,0,0,.85)}
+.w3-note{margin-top:28px;font-size:14px;color:var(--ink-3);max-width:640px}
+
+/* ---------- chapter HUD (desktop) ---------- */
+.w3d-hud{position:fixed;left:clamp(10px, 1.4vw, 22px);top:50%;z-index:4;display:flex;flex-direction:column;gap:12px;translate:0 -50%;opacity:0;pointer-events:none;transition:opacity .6s}
+.w3d.in-view .w3d-hud{opacity:1;pointer-events:auto}
+.w3d-hud a{position:relative;display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--ink-3);height:14px}
+.w3d-hud i{width:6px;height:6px;border-radius:50%;background:rgba(244,242,239,.25);transition:background .4s, box-shadow .4s, transform .4s}
+.w3d-hud span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;opacity:0;translate:-6px 0;transition:opacity .35s, translate .35s;background:rgba(5,5,5,.85);padding:3px 8px;border-radius:4px}
+.w3d-hud em{font-style:normal;color:var(--red);margin-right:8px}
+.w3d-hud a:hover span, .w3d-hud a.on span{opacity:1;translate:0 0}
+.w3d-hud a.on i{background:var(--red);box-shadow:0 0 12px var(--red);transform:scale(1.5)}
+.w3d-hud a:not(.on) span{opacity:0}
+.w3d-hud a:hover span{opacity:1}
+@media (max-width:1180px){.w3d-hud{display:none}}
+
+/* ---------- 3D glass cards ---------- */
+.c3-grid{display:grid;gap:clamp(16px, 2vw, 28px);perspective:1600px;perspective-origin:50% 40%}
+.c3-grid--svc{grid-template-columns:repeat(3, minmax(0, 1fr))}
+.c3-grid--sector{grid-template-columns:repeat(4, minmax(0, 1fr))}
+.c3-grid--stat{grid-template-columns:repeat(3, minmax(0, 1fr))}
+.c3-grid--why{grid-template-columns:repeat(2, minmax(0, 1fr))}
+.c3-grid--loc{grid-template-columns:repeat(2, minmax(0, 1fr));margin-top:clamp(28px, 4vw, 48px)}
+.c3-grid--ent{grid-template-columns:1fr}
+
+.c3{position:relative;transform-style:preserve-3d;will-change:transform, opacity}
+.c3-in{
+  position:relative;height:100%;display:flex;flex-direction:column;
+  padding:clamp(22px, 2.2vw, 34px);border-radius:20px;overflow:hidden;
+  background:linear-gradient(155deg, rgba(28,28,31,.9) 0%, rgba(12,12,14,.93) 55%, rgba(8,8,9,.95) 100%);
+  -webkit-backdrop-filter:blur(18px) saturate(1.2);backdrop-filter:blur(18px) saturate(1.2);
+  border:1px solid rgba(225,6,0,.26);
+  box-shadow:0 30px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.07), inset 0 0 0 1px rgba(255,255,255,.02);
+  transition:border-color .5s, box-shadow .6s;
+  transform-style:preserve-3d;
+}
+/* metal edge: a thin bright line that runs along the top of the panel */
+.c3-in::before{content:"";position:absolute;left:18px;right:18px;top:0;height:1px;background:linear-gradient(90deg, transparent, rgba(255,90,70,.75), transparent);opacity:.55;transition:opacity .5s}
+/* light that follows the cursor (and a faint red floor reflection) */
+.c3-glow{position:absolute;inset:0;pointer-events:none;border-radius:inherit;opacity:.0;transition:opacity .5s;
+  background:radial-gradient(420px circle at var(--gx, 50%) var(--gy, 0%), rgba(225,6,0,.2), transparent 60%)}
+.c3-in::after{content:"";position:absolute;left:0;right:0;bottom:0;height:40%;pointer-events:none;background:linear-gradient(0deg, rgba(225,6,0,.06), transparent)}
+.c3.is-hover .c3-in, .c3:focus-visible .c3-in, .c3.open .c3-in{
+  border-color:rgba(255,48,30,.7);
+  box-shadow:0 40px 90px rgba(0,0,0,.6), 0 0 46px rgba(225,6,0,.26), inset 0 1px 0 rgba(255,255,255,.1);
+}
+.c3.is-hover .c3-glow, .c3.open .c3-glow{opacity:1}
+.c3.is-hover .c3-in::before{opacity:1}
+.c3:focus-visible{outline:none}
+
+.c3-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:clamp(18px, 2vw, 28px)}
+/* the 3D icon is drawn over this slot; the CSS orb is the no-WebGL fallback */
+.c3-icon{flex:none;width:clamp(68px, 6vw, 88px);aspect-ratio:1;border-radius:50%;
+  background:radial-gradient(circle at 50% 55%, rgba(225,6,0,.28) 0%, rgba(225,6,0,.07) 45%, transparent 70%)}
+.w3d:not(.gl-on) .c3-icon{box-shadow:inset 0 0 0 1px rgba(225,6,0,.35)}
+.c3-k{color:var(--ink-3);text-align:right}
+.c3-n{font-family:var(--serif);font-size:clamp(34px, 3vw, 46px);line-height:1;color:transparent;-webkit-text-stroke:1px rgba(255,60,40,.75)}
+.c3-t{font-family:var(--serif);font-weight:400;font-size:clamp(23px, 1.9vw, 30px);line-height:1.14;color:#fff;margin-bottom:12px;letter-spacing:-.005em}
+.c3-d{font-size:15px;line-height:1.68;color:var(--ink-2);font-style:normal}
+.c3-lead{color:#ff3b2a;font-size:15.5px;line-height:1.5;margin-bottom:12px}
+.c3-x{margin-top:14px;font-size:13px;color:var(--ink-3)}
+.c3-tags{list-style:none;display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.c3-tags li{font-size:11.5px;letter-spacing:.02em;padding:5px 10px;border-radius:999px;color:var(--ink-2);background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.1);transition:border-color .4s, color .4s}
+.c3.is-hover .c3-tags li{border-color:rgba(225,6,0,.45);color:#fff}
+.c3-go{margin-top:auto;padding-top:24px;align-self:flex-start;display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:#fff}
+.c3-go span{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;border:1px solid rgba(225,6,0,.6);color:var(--red);transition:background .35s, color .35s, translate .35s var(--ease-out)}
+.c3-go:hover span, .c3.is-hover .c3-go span{background:var(--red);color:#fff;translate:4px 0}
+.c3-go:focus-visible{outline:1px solid var(--red);outline-offset:4px;border-radius:4px}
+
+/* sector cards: details open on hover / focus / tap */
+.c3--sector .c3-t{font-size:clamp(20px, 1.5vw, 24px);margin-bottom:0}
+.c3--sector{cursor:pointer}
+.c3-more{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .6s var(--ease-out), opacity .45s, margin .6s var(--ease-out)}
+.c3-more > div{overflow:hidden;min-height:0}
+.c3-more .c3-d{padding-top:14px}
+.c3-more .c3-go{padding-top:16px}
+.c3.is-hover .c3-more, .c3:focus-within .c3-more, .c3.open .c3-more{grid-template-rows:1fr;opacity:1}
+@media (hover:none){.c3--sector .c3-more{grid-template-rows:1fr;opacity:1}}
+
+/* stats */
+.c3--stat .c3-in{min-height:230px;justify-content:flex-end}
+.c3-num{display:block;font-family:var(--serif);font-weight:400;font-size:clamp(64px, 7vw, 108px);line-height:.95;letter-spacing:-.03em;color:#fff;
+  text-shadow:0 0 34px rgba(225,6,0,.55);margin-bottom:16px;font-variant-numeric:tabular-nums}
+.c3--stat .c3-k{text-align:left;color:#ff4a38}
+.c3--stat .c3-d{margin-top:10px;font-size:14px}
+
+/* principles */
+.c3--why .c3-in{min-height:340px}
+
+/* six moves along a glowing spine */
+.flow{position:relative;display:flex;flex-direction:column;gap:clamp(18px, 2.4vw, 34px);perspective:1600px}
+.flow-spine{position:absolute;left:50%;top:0;bottom:0;width:2px;translate:-1px 0;background:rgba(244,242,239,.08)}
+.flow-spine i{position:absolute;inset:0;transform-origin:50% 0;transform:scaleY(0);background:linear-gradient(180deg, #ff2a1a, #e10600 70%, rgba(225,6,0,.2));box-shadow:0 0 16px rgba(225,6,0,.8)}
+.c3--move{width:calc(50% - 46px)}
+.c3--move:nth-of-type(even){align-self:flex-end}
+.c3--move .c3-in{overflow:visible}
+.flow-dot{position:absolute;top:44px;right:-53px;width:14px;height:14px;border-radius:50%;background:#111;border:2px solid rgba(225,6,0,.6);transition:background .5s, box-shadow .5s}
+.c3--move:nth-of-type(even) .flow-dot{right:auto;left:-53px}
+.c3--move.lit .flow-dot{background:var(--red);box-shadow:0 0 0 6px rgba(225,6,0,.18), 0 0 22px rgba(225,6,0,.9)}
+
+/* locations: the route keeps its existing look */
+.c3--loc address{color:#fff;font-size:16px}
+
+/* group: text left, entity cards right */
+.w3-split{display:grid;grid-template-columns:minmax(0, 1.05fr) minmax(0, .95fr);gap:clamp(28px, 5vw, 80px);align-items:center}
+.w3-split .w3h{margin-bottom:0}
+.c3--ent.current .c3-in{border-color:rgba(255,48,30,.6);background:linear-gradient(155deg, rgba(70,8,6,.6), rgba(14,10,10,.86) 60%)}
+.c3--ent .c3-head{margin-bottom:12px}
+.c3--ent .c3-n{font-size:30px}
+.c3--ent .c3-k{color:#ff4a38}
+
+/* transparency list inside one glass panel */
+.c3--panel .c3-in{padding:clamp(24px, 3.4vw, 52px)}
+.c3--panel .transp{margin:0}
+
+/* ---------- finale ---------- */
+.cta3{min-height:100vh;display:grid;place-items:center;text-align:center;overflow:hidden}
+.cta3 .wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center}
+.cta3 .h2{max-width:20ch;margin:24px auto 0}
+.cta3 .cta-row{justify-content:center;margin-top:40px}
+.cta3 .cta-note{margin-top:22px;font-size:13px;color:var(--ink-3)}
+.cta3-mark{position:absolute;left:50%;top:50%;translate:-50% -50%;z-index:0;pointer-events:none;white-space:nowrap;
+  font-family:var(--serif);font-size:clamp(110px, 24vw, 380px);line-height:1;letter-spacing:-.04em;
+  color:transparent;-webkit-text-stroke:1px rgba(244,242,239,.09)}
+.cta3-mark em{font-style:normal;-webkit-text-stroke-color:rgba(225,6,0,.3)}
+
+/* ---------- tablet ---------- */
+@media (max-width:1100px){
+  .c3-grid--svc, .c3-grid--stat{grid-template-columns:repeat(2, minmax(0, 1fr))}
+  .c3-grid--sector{grid-template-columns:repeat(3, minmax(0, 1fr))}
+}
+@media (max-width:900px){
+  .w3-split{grid-template-columns:1fr}
+  .c3-grid--why{grid-template-columns:1fr}
+}
+
+/* ---------- phone ---------- */
+@media (max-width:760px){
+  .c3-grid--svc, .c3-grid--loc{grid-template-columns:1fr}
+  .c3-grid--sector, .c3-grid--stat{grid-template-columns:repeat(2, minmax(0, 1fr));gap:12px}
+  .c3-in{border-radius:16px;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+  .c3--sector .c3-in, .c3--stat .c3-in{padding:18px}
+  .c3--sector .c3-icon{width:54px}
+  .c3--sector .c3-k{font-size:9.5px;letter-spacing:.1em}
+  .c3--sector .c3-t{font-size:18px}
+  .c3--sector .c3-d{font-size:13.5px}
+  .c3--stat .c3-in{min-height:170px}
+  .c3-num{font-size:clamp(46px, 13vw, 64px)}
+  .c3--stat .c3-d{display:none}
+  .c3--why .c3-in{min-height:0}
+  .flow-spine{left:7px}
+  .c3--move, .c3--move:nth-of-type(even){width:auto;align-self:stretch;margin-left:30px}
+  .flow-dot, .c3--move:nth-of-type(even) .flow-dot{left:-30px;right:auto;top:30px;translate:-50% 0}
+}
+@media (max-width:420px){
+  .c3-grid--sector{grid-template-columns:1fr}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .c3, .c3-in{transition:none}
+  .flow-spine i{transform:none}
+}

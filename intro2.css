@@ -1,0 +1,82 @@
+/* Second section (below the sphere hero): spec-style hero with liquid-glass pill, serif-italic
+   accent, staggered entrance, video + dashboard parallax, and a scroll-driven word reveal */
+
+.intro2{display:block;min-height:0;padding-top:clamp(84px, 7vw, 112px);overflow:hidden}
+.intro2::before{background:radial-gradient(ellipse 55% 55% at 74% 34%, rgba(225,6,0,.10) 0%, transparent 70%)}
+.intro2::after{display:none}
+
+/* Staggered entrance (replaces Framer Motion initial/animate) */
+.i2-in{opacity:0;translate:0 var(--y, 20px);transition:opacity var(--t, .6s) ease var(--d, 0s), translate var(--t, .6s) var(--ease-out) var(--d, 0s)}
+.intro2.go .i2-in{opacity:1;translate:0 0}
+
+.i2-text{will-change:transform, opacity}
+/* the old About-page rule (.about-intro .wrap) added 130px/80px padding to every block here */
+.intro2 .wrap{padding-top:0;padding-bottom:0}
+/* text left, animated globe right */
+.i2-split{display:grid;grid-template-columns:minmax(0, 1.05fr) minmax(0, .95fr);gap:clamp(24px, 4vw, 72px);align-items:center}
+.i2-copy{display:flex;flex-direction:column;align-items:flex-start;text-align:left}
+.i2-visual{position:relative;width:100%;aspect-ratio:1/1;max-height:min(600px, 70vh)}
+.intro2 .i2-visual #globe{position:absolute;top:-12%;left:-12%;right:auto;width:124%;height:124%;z-index:0;transform:none}
+
+.i2-pill{display:inline-flex;align-items:center;gap:10px;padding:8px 12px;border-radius:10px;margin-bottom:24px;font-size:14px;font-weight:500;color:rgba(255,255,255,.65)}
+.i2-new{background:var(--red);color:#fff;border-radius:6px;font-size:13px;font-weight:600;padding:2px 8px;box-shadow:0 0 18px rgba(225,6,0,.5)}
+
+.i2-title{
+  font-family:var(--sans);font-weight:500;color:#fff;
+  font-size:clamp(40px, 4.7vw, 70px);letter-spacing:-2px;line-height:1.1;margin-bottom:18px;
+  max-width:17ch;text-wrap:balance;
+}
+.serif-i{white-space:nowrap;font-family:"Instrument Serif", var(--serif);font-style:italic;font-weight:400;letter-spacing:-1px;color:var(--red);padding-right:.06em}
+.i2-sub{font-size:18px;line-height:1.5;color:hsl(210 17% 95%);opacity:.9;margin-bottom:32px;max-width:720px}
+.i2-cta{display:flex;flex-wrap:wrap;gap:14px;justify-content:flex-start}
+.i2-solid{transition:translate .5s var(--ease-out), transform .25s var(--ease), box-shadow .4s}
+.i2-solid:hover{transform:scale(1.03)}
+.i2-solid:active{transform:scale(.98)}
+
+/* Signal-terrain canvas area */
+.i2-media{position:relative;width:100%;aspect-ratio:16/9;min-height:320px;max-height:86vh;margin-top:8px;overflow:hidden;isolation:isolate}
+.i2-terrain{position:absolute;inset:0;width:100%;height:100%;display:block;background:radial-gradient(ellipse 70% 45% at 50% 30%, rgba(225,6,0,.16) 0%, transparent 70%), #000}
+.i2-fade{position:absolute;left:0;right:0;bottom:0;height:160px;z-index:3;pointer-events:none;background:linear-gradient(0deg, #000, transparent)}
+.i2-fade.top{top:0;bottom:auto;height:70px;background:linear-gradient(180deg, #000, transparent)}
+
+.intro2 .markers{position:relative;z-index:4;margin-top:clamp(40px, 5vw, 72px)}
+
+/* Scroll-driven word reveal */
+/* quote left, morphing 3D shape right */
+.i2-qgrid{display:grid;grid-template-columns:minmax(0, 860px);justify-content:center;gap:clamp(24px, 4vw, 64px);align-items:center;padding-top:clamp(80px, 10vw, 130px);padding-bottom:clamp(80px, 10vw, 130px)}
+.intro2 .i2-quote{max-width:860px;display:flex;flex-direction:column;align-items:flex-start;gap:40px}
+.i2-morph{position:relative;width:100%;aspect-ratio:1/1;max-height:min(560px, 72vh);justify-self:center}
+.i2-morph canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.i2-morph-tag{position:absolute;left:50%;bottom:2%;translate:-50% 0;white-space:nowrap;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-3);transition:opacity .5s}
+.i2-morph-tag::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--red);box-shadow:0 0 10px var(--red);margin-right:10px;vertical-align:middle}
+.i2-qmark{width:56px;height:40px;fill:var(--red);filter:drop-shadow(0 0 16px rgba(225,6,0,.5))}
+.i2-words{display:flex;flex-wrap:wrap;font-family:var(--sans);font-size:clamp(30px, 4.2vw, 50px);font-weight:500;line-height:1.2;letter-spacing:-.5px}
+.i2-words .sw{margin-right:.3em;opacity:.2;color:hsl(0 0% 35%);will-change:opacity, color}
+.i2-words em{font-style:normal}
+.i2-close{color:var(--ink-3);margin-left:.1em}
+.i2-author{display:flex;align-items:center;gap:16px}
+.i2-avatar{
+  width:56px;height:56px;border-radius:50%;flex:none;display:grid;place-items:center;
+  border:3px solid #fff;font-family:var(--serif);font-size:18px;color:#fff;
+  background:linear-gradient(145deg, #ff1a0d 0%, #b00400 55%, #4a0100 100%);
+}
+.i2-author b{display:block;font-size:16px;font-weight:600;line-height:28px;color:#fff}
+.i2-author div span{display:block;font-size:14px;line-height:20px;color:var(--ink-3)}
+
+@media (max-width:900px){
+  .i2-split{grid-template-columns:1fr}
+  .i2-qgrid{grid-template-columns:1fr}
+  .i2-morph{max-width:380px;order:-1}
+  .i2-visual{max-width:440px;width:100%;justify-self:center;margin-top:8px}
+}
+@media (max-width:768px){
+  .br-md{display:none}
+  .i2-title{letter-spacing:-1px}
+  .i2-sub{font-size:16px}
+}
+
+/* the card strip sits directly above, so the section no longer needs header clearance */
+.mq-band + .intro2{padding-top:clamp(24px, 3vw, 48px)}
+
+/* .intro2 .wrap zeroes padding; the quote grid needs its own breathing room */
+.intro2 .i2-qgrid{padding-top:clamp(80px, 10vw, 130px);padding-bottom:clamp(80px, 10vw, 130px)}

@@ -1,0 +1,24 @@
+/* Natural photo colours — active while <html> has class="natural".
+   Removes the black/red grade from photos and videos; the black background and red UI accents stay.
+   To bring the red grade back, delete class="natural" from the <html> tag in index.html. */
+
+/* red colour washes over photos and videos */
+html.natural .rg::after,
+html.natural .fwash,
+html.natural .shot::after{display:none}
+
+/* photos and videos in their real colours */
+html.natural .rg img,
+html.natural img.raw,
+html.natural .shot img{filter:none}
+html.natural .i2-dash{mix-blend-mode:normal}
+
+/* keep the darkening that sits behind text, just without the grey/red */
+html.natural .pimg img,
+html.natural .mimg img{filter:brightness(.5)}
+html.natural .kb img{filter:brightness(.9) saturate(1.05)}
+html.natural .mq-item img{filter:brightness(.75)}
+html.natural .fvideo video{filter:none}
+html.natural .tile.has-img img{filter:brightness(.65)}
+
+/* exception: the opening eye film keeps its black/red grade (filter + red wash from index.html) */

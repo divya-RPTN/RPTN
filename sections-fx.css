@@ -1,0 +1,318 @@
+/* =====================================================================
+   RPTN section FX — a different animation for every section below the hero
+   ===================================================================== */
+
+/* Shared black/red photo grade */
+.rg{position:relative;overflow:hidden;background:#0a0a0a}
+.rg img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.15) brightness(.72)}
+.rg::after{content:"";position:absolute;inset:0;background:#d40500;mix-blend-mode:color;opacity:.85;pointer-events:none}
+
+/* Liquid-glass buttons (from the hero spec) + magnetic pull */
+.btn.liquid-glass{
+  background:rgba(255,255,255,.01);background-blend-mode:luminosity;
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.1);color:rgba(255,255,255,.92);
+}
+.btn.liquid-glass::before{
+  inset:0;border-radius:inherit;padding:1.4px;z-index:0;transform:none;transition:none;
+  background:linear-gradient(180deg, rgba(255,255,255,.45) 0%, rgba(255,255,255,.15) 20%, rgba(255,255,255,0) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,.15) 80%, rgba(255,255,255,.45) 100%);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
+}
+.btn.liquid-glass:hover{background:rgba(255,255,255,.04);box-shadow:inset 0 1px 2px rgba(255,255,255,.15), 0 0 34px rgba(225,6,0,.28)}
+.btn.liquid-glass:active{transform:scale(.98)}
+.magnetic{transition:translate .5s var(--ease-out), transform .4s var(--ease), box-shadow .4s var(--ease), background .3s}
+
+/* Positioning — 3D coverflow: the active photo stands in front, the other two angle away behind it
+   and the ring turns to the card in view. Photos stay whole, so the motion reads clean */
+@property --ang{syntax:"<angle>";inherits:false;initial-value:0deg}
+.prism{
+  --h:clamp(260px, 28vw, 380px);--ember:#ff7a3c;--amber:#ffb36b;
+  position:relative;margin-top:44px;perspective:1400px;
+}
+.prism-stage{
+  position:relative;height:var(--h);transform-style:preserve-3d;
+  transform:rotateY(calc(var(--px, 0) * 10deg)) rotateX(calc(var(--py, 0) * -6deg));
+  transition:transform .9s var(--ease-out);
+}
+.prism-rows{position:absolute;inset:0;transform-style:preserve-3d;animation:prismFloat 8s ease-in-out infinite}
+@keyframes prismFloat{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(0,-10px,0)}}
+.pv{
+  position:absolute;top:0;bottom:0;left:13%;right:13%;margin:0;border-radius:20px;overflow:hidden;cursor:pointer;
+  background:#0a0606;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  box-shadow:0 40px 80px rgba(0,0,0,.7), inset 0 0 0 1px rgba(255,150,100,.2);
+  transition:transform 1.2s cubic-bezier(.65,0,.2,1), filter 1.2s var(--ease-out), opacity 1.2s var(--ease-out);
+}
+.pv[data-pos="0"]{transform:translateZ(0);cursor:default}
+.pv[data-pos="1"]{transform:translateX(46%) translateZ(-260px) rotateY(48deg);filter:brightness(.42) saturate(.75)}
+.pv[data-pos="-1"]{transform:translateX(-46%) translateZ(-260px) rotateY(-48deg);filter:brightness(.42) saturate(.75)}
+.pv img{width:100%;height:100%;object-fit:cover;transform:scale(1.06);transition:transform 1.4s var(--ease-out)}
+.pv[data-pos="0"] img{animation:kenburns 16s ease-in-out infinite alternate}
+@keyframes kenburns{from{transform:scale(1.02)}to{transform:scale(1.1) translateY(-1.5%)}}
+/* warm natural grade: ember light at the top, deep shadow at the base */
+.pv::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg, rgba(255,140,70,.10) 0%, transparent 38%, rgba(10,0,0,.2) 70%, rgba(0,0,0,.55) 100%), linear-gradient(0deg, rgba(225,6,0,.25), transparent 30%)}
+/* light sweep across the photo that just came to the front */
+.pv::before{
+  content:"";position:absolute;z-index:2;top:-20%;bottom:-20%;width:45%;left:0;pointer-events:none;transform:translateX(-160%) skewX(-18deg);
+  background:linear-gradient(90deg, transparent, rgba(255,214,170,.3), rgba(255,255,255,.08), transparent);
+}
+.prism.flash .pv[data-pos="0"]::before{animation:shine 1.4s .55s var(--ease-out)}
+@keyframes shine{to{transform:translateX(330%) skewX(-18deg)}}
+html:not(.natural) .pv img{filter:grayscale(1) contrast(1.15) brightness(.72)}
+
+.prism-glow{
+  position:absolute;left:10%;right:10%;top:10%;height:var(--h);border-radius:50%;pointer-events:none;
+  background:radial-gradient(closest-side, rgba(225,6,0,.55), rgba(255,110,50,.22) 55%, transparent);
+  filter:blur(46px);animation:glowPulse 5s ease-in-out infinite;
+}
+@keyframes glowPulse{0%,100%{opacity:.55;transform:scale(.95)}50%{opacity:.9;transform:scale(1.05)}}
+.prism-floor{
+  height:46px;margin:-4px 14% 0;pointer-events:none;
+  background:radial-gradient(ellipse 50% 100% at 50% 0, rgba(255,95,45,.5), rgba(225,6,0,.15) 45%, transparent 75%);
+  filter:blur(10px);
+}
+
+.prism-embers{position:absolute;inset:0 13%;pointer-events:none;transform:translateZ(80px)}
+.prism-embers i{
+  position:absolute;bottom:0;left:var(--x);width:var(--s);height:var(--s);border-radius:50%;opacity:0;
+  background:radial-gradient(circle, #fff3e0 0%, var(--amber) 35%, rgba(225,6,0,0) 70%);
+  animation:ember var(--d) linear var(--t) infinite;
+}
+@keyframes ember{
+  0%{opacity:0;transform:translate3d(0,0,0)}
+  15%{opacity:1}
+  100%{opacity:0;transform:translate3d(var(--dx), calc(var(--h) * -1.05), 0)}
+}
+
+.prism-cap{position:relative;height:46px;margin:6px 13% 0;perspective:700px}
+.pc{
+  position:absolute;left:0;top:0;display:flex;gap:14px;align-items:center;white-space:nowrap;
+  font-family:var(--serif);font-size:clamp(22px, 2vw, 30px);line-height:46px;color:#fff;
+  opacity:0;transform:translateY(70%) rotateX(-90deg);transform-origin:50% 100%;
+  transition:opacity .6s var(--ease-out), transform .9s var(--ease-out);
+}
+.pc span{
+  font-family:var(--sans);font-size:11px;line-height:1;letter-spacing:.18em;padding:6px 10px;border-radius:999px;
+  color:#fff;background:linear-gradient(135deg, var(--red), var(--ember));box-shadow:0 0 20px rgba(225,6,0,.5);
+}
+.pc.on{opacity:1;transform:none;transition-delay:.45s}
+.pc.out{opacity:0;transform:translateY(-70%) rotateX(90deg);transform-origin:50% 0}
+.prism-bar{display:flex;gap:8px;margin:14px 13% 0}
+.prism-bar i{position:relative;flex:1;height:2px;border-radius:2px;background:rgba(244,242,239,.12);overflow:hidden}
+.prism-bar i::after{content:"";position:absolute;inset:0;transform:scaleX(0);transform-origin:0 50%;background:linear-gradient(90deg, var(--red), #ffb36b);transition:transform 1.2s var(--ease-out)}
+.prism-bar i.on::after{transform:scaleX(1)}
+
+/* Positioning cards: fly in from depth, active card comes forward with a rotating ember border */
+#positioning .pos-list{perspective:1400px}
+#positioning .pos-item{grid-template-columns:76px 1fr}
+#positioning .pos-item.reveal{
+  opacity:0;transform:perspective(1000px) translate3d(80px, 40px, -240px) rotateY(-34deg) rotateX(14deg);
+  transition:opacity 1s var(--ease-out) var(--delay, 0s), transform 1.4s var(--ease-out) var(--delay, 0s), box-shadow .6s var(--ease), filter .7s var(--ease);
+}
+#positioning .pos-item.reveal.in{opacity:1;transform:perspective(1000px) translateZ(var(--z, 0px)) rotateX(var(--rx)) rotateY(var(--ry))}
+#positioning .pos-item.reveal.in.hovering{transition:transform .12s linear, box-shadow .6s var(--ease), filter .7s var(--ease)}
+#posList.has-on .pos-item.in:not(.on){opacity:.62;filter:saturate(.6) brightness(.85)}
+.pos-item.on{
+  --z:36px;
+  background:radial-gradient(120% 90% at 0% 0%, rgba(255,110,60,.12), transparent 55%), linear-gradient(160deg, #161010 0%, #080707 60%, #050505 100%);
+  box-shadow:0 40px 90px rgba(0,0,0,.6), 0 0 70px rgba(225,6,0,.2);
+}
+.pos-item::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;opacity:0;transition:opacity .6s;
+  background:conic-gradient(from var(--ang), rgba(225,6,0,.15) 0 40%, var(--red) 62%, #ffb36b 72%, #fff3e0 75%, rgba(225,6,0,.15) 90%);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
+}
+.pos-item.on::before{opacity:1;animation:angSpin 4.5s linear infinite}
+@keyframes angSpin{to{--ang:360deg}}
+.pos-item .num{
+  display:inline-block;font-size:46px;line-height:1;color:transparent;-webkit-text-stroke:1px rgba(255,130,80,.55);
+  transform:translateZ(34px);transition:filter .6s;
+}
+.pos-item .body{transform:translateZ(14px)}
+.pos-item.on .num{
+  -webkit-text-stroke:0;background:linear-gradient(180deg, #fff3e0 0%, #ffb36b 30%, #ff5a2a 60%, #e10600 100%);
+  -webkit-background-clip:text;background-clip:text;
+  filter:drop-shadow(0 4px 0 #6a0200) drop-shadow(0 0 22px rgba(225,6,0,.55));
+  animation:numIn 1s var(--ease-out);
+}
+@keyframes numIn{from{transform:translateZ(34px) rotateY(-180deg) scale(.7)}to{transform:translateZ(34px)}}
+
+@media (prefers-reduced-motion: reduce){
+  .prism-rows, .pv img, .prism-glow, .prism-embers, .pos-item.on::before, .pos-item.on .num{animation:none}
+  .pv{transition:none}
+}
+
+/* Foundation — video background, cursor spotlight, per-character fade, glass panel */
+.foundation{isolation:isolate}
+.fvideo{position:absolute;inset:0;z-index:-2;overflow:hidden;background:#000}
+.fvideo video{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.25) brightness(1.05);transform:scale(1.04)}
+.fwash{position:absolute;inset:0;background:#c00400;mix-blend-mode:color;opacity:.85}
+.fspot{position:absolute;inset:0;background:radial-gradient(circle 420px at var(--sx, 50%) var(--sy, 42%), rgba(255,255,255,.06) 0%, rgba(0,0,0,0) 45%, rgba(0,0,0,.18) 100%)}
+.fvideo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg, #000 0%, transparent 9%, transparent 91%, #000 100%)}
+[data-chars] .wd{display:inline-block;white-space:nowrap}
+[data-chars] .ch{
+  display:inline-block;opacity:0;transform:translateY(.35em);filter:blur(6px);
+  transition:opacity .6s ease, transform .8s var(--ease-out), filter .7s ease;transition-delay:calc(var(--ci) * 22ms);
+}
+[data-chars].in .ch{opacity:1;transform:none;filter:blur(0)}
+.glass-panel{
+  padding:28px 34px;border-radius:20px;
+  background:rgba(10,10,10,.45);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1), inset 0 0 0 1px rgba(255,255,255,.06), 0 30px 80px rgba(0,0,0,.5);
+}
+
+/* Principles — dealt in from a deck, image bursts out of the cursor on hover */
+.deal{
+  opacity:0;translate:var(--dx, 0) var(--dy, 0);rotate:var(--rot, 0deg);scale:.8;
+  transition:translate 1.15s var(--ease-out), rotate 1.15s var(--ease-out), scale 1.15s var(--ease-out), opacity .5s ease, transform .6s var(--ease-out);
+  transition-delay:var(--delay, 0s);
+}
+.deal.in{opacity:1;translate:0 0;rotate:0deg;scale:1}
+.deal.in.hovering{transition:transform .12s linear}
+.principle{overflow:hidden;isolation:isolate}
+.pimg{position:absolute;inset:0;z-index:-1;clip-path:circle(0px at var(--cx, 50%) var(--cy, 50%));transition:clip-path .9s var(--ease-out)}
+.pimg img{filter:grayscale(1) contrast(1.15) brightness(.3)}
+.principle:hover .lead-red{color:#fff}
+.principle .lead-red{transition:color .5s}
+.principle:hover .pimg{clip-path:circle(150% at var(--cx, 50%) var(--cy, 50%))}
+
+/* Coverage ring — photo tiles */
+.tile.has-img{isolation:isolate;overflow:hidden}
+.tile.has-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;filter:grayscale(1) sepia(1) hue-rotate(-50deg) saturate(4.5) brightness(.5) contrast(1.1)}
+.tile.has-img small{color:rgba(255,255,255,.85)}
+.tile.has-img::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.78))}
+
+/* Six moves — image drifts against the card swing */
+.move{overflow:hidden;isolation:isolate}
+.mimg{position:absolute;inset:-6% -18%;z-index:-2;opacity:.32;transform:translateX(calc(var(--par, 0) * -46px));transition:opacity .6s}
+.mimg img{filter:grayscale(1) contrast(1.15) brightness(.55)}
+.move.active .mimg{opacity:.62}
+.move::after{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:linear-gradient(180deg, rgba(5,5,5,.25) 0%, rgba(5,5,5,.92) 72%)}
+
+/* Engagement — Ken Burns background, glass cards with a travelling light beam */
+.engage{isolation:isolate;overflow:hidden}
+.kb{position:absolute;inset:0;z-index:-2;animation:kenburns 26s ease-in-out infinite alternate}
+.kb img{filter:grayscale(1) contrast(1.15) brightness(.42)}
+@keyframes kenburns{from{transform:scale(1.04) translate(0, 0)}to{transform:scale(1.22) translate(-3%, -2%)}}
+.kb-shade{position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg, #000 0%, rgba(0,0,0,.12) 18%, rgba(0,0,0,.12) 82%, #000 100%)}
+.path.beam, .path.beam:nth-child(2){background:rgba(12,8,8,.42);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
+.path.beam:nth-child(2){background:rgba(70,4,2,.42)}
+@property --ang{syntax:"<angle>";initial-value:0deg;inherits:false}
+.beam::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;
+  background:conic-gradient(from var(--ang), transparent 0deg, transparent 240deg, rgba(225,6,0,.95) 300deg, #fff 330deg, transparent 360deg);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;
+  animation:beam 4.2s linear infinite;
+}
+.path:nth-child(2).beam::before{animation-delay:-1.4s}
+.path:nth-child(3).beam::before{animation-delay:-2.8s}
+@keyframes beam{to{--ang:360deg}}
+
+/* Locations — route drawn from Pandharpur to Pune */
+.route{position:relative;margin-top:36px;aspect-ratio:5/1}
+.route svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.route-base{fill:none;stroke:rgba(244,242,239,.1);stroke-width:1.5;stroke-dasharray:4 8}
+.route-line{fill:none;stroke-width:2.5;stroke-linecap:round;stroke-dasharray:1400;stroke-dashoffset:1400;transition:stroke-dashoffset 2.6s var(--ease-out) .3s;filter:drop-shadow(0 0 6px rgba(225,6,0,.85))}
+.route.in .route-line{stroke-dashoffset:0}
+.route-node{fill:#e10600;filter:drop-shadow(0 0 8px #e10600)}
+.route-dot{fill:#fff;filter:drop-shadow(0 0 6px #ff2a1a)}
+.route-label{position:absolute;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap}
+.route-label.a{left:6%;top:75%;transform:translate(-10%, 22px)}
+.route-label.b{right:6%;top:30%;transform:translate(10%, -40px)}
+
+/* Group — photo-textured slabs that float */
+.slab{isolation:isolate;overflow:hidden;animation:slabFloat 5s ease-in-out infinite;animation-delay:calc(var(--z) * -1.6s)}
+@keyframes slabFloat{0%,100%{translate:0 0 0}50%{translate:0 0 16px}}
+.simg{position:absolute;inset:0;z-index:-2;border-radius:inherit;opacity:.55}
+.slab.current .simg{opacity:.4}
+.slab::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg, transparent 25%, rgba(0,0,0,.72))}
+
+/* Transparency — red scan line + check marks that draw themselves */
+.transp{position:relative}
+.transp li{grid-template-columns:44px 1fr 26px}
+.chk{width:22px;height:22px;margin-top:3px}
+.chk path{fill:none;stroke:var(--red);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24;stroke-dashoffset:24;transition:stroke-dashoffset .7s var(--ease-out) .55s}
+.transp li.in .chk path{stroke-dashoffset:0}
+.transp::after{content:"";position:absolute;left:0;right:0;top:0;height:2px;opacity:0;pointer-events:none;background:linear-gradient(90deg, transparent, #ff2a1a, transparent);box-shadow:0 0 18px 4px rgba(225,6,0,.6)}
+.transp.scan::after{animation:scan 2.4s var(--ease) 1 forwards}
+@keyframes scan{0%{top:0;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}
+
+/* Absences — image cards that glitch in */
+.face.front{isolation:isolate;overflow:hidden}
+.fimg{position:absolute;inset:0;z-index:-1;border-radius:inherit;opacity:.32;transition:opacity .5s, transform 1.2s var(--ease-out)}
+.flip:hover .fimg{opacity:.55;transform:scale(1.08)}
+.glitchin{opacity:0}
+.glitchin.in{animation:glitchIn .95s steps(1) forwards;animation-delay:var(--delay, 0s)}
+@keyframes glitchIn{
+  0%{opacity:0;transform:translateX(-14px);filter:drop-shadow(6px 0 #e10600) drop-shadow(-6px 0 #fff)}
+  18%{opacity:1;transform:translateX(9px)}
+  30%{opacity:.2;transform:translateX(-5px) skewX(8deg)}
+  44%{opacity:1;transform:none;filter:drop-shadow(3px 0 #e10600) drop-shadow(-3px 0 rgba(255,255,255,.6))}
+  60%{opacity:.55}
+  76%{opacity:1;filter:none}
+  100%{opacity:1;transform:none;filter:none}
+}
+
+/* CTA — tilted 3D image marquee behind the call to action */
+.cta{isolation:isolate}
+.mq-scene{position:absolute;inset:-25% -15%;z-index:-2;perspective:1200px;pointer-events:none;display:grid;place-items:center}
+.mq-plane{display:flex;flex-direction:column;gap:22px;transform:rotateX(52deg) rotateZ(-14deg)}
+.mq-row{display:flex;gap:22px;width:max-content;animation:mq 48s linear infinite}
+.mq-row.rev{animation-direction:reverse;animation-duration:58s}
+.mq-item{flex:none;width:300px;aspect-ratio:3/2;border-radius:14px;box-shadow:inset 0 0 0 1px rgba(225,6,0,.3)}
+.mq-item img{filter:grayscale(1) contrast(1.15) brightness(.6)}
+@keyframes mq{to{transform:translateX(-50%)}}
+.mq-shade{position:absolute;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(ellipse 58% 52% at 50% 50%, rgba(0,0,0,.93) 0%, rgba(0,0,0,.62) 55%, rgba(0,0,0,.2) 100%), linear-gradient(180deg, #000 0%, transparent 22%, transparent 78%, #000 100%)}
+
+/* Footer ribbon */
+.ribbon{overflow:hidden;border-top:1px solid var(--line);padding:30px 0;background:#000}
+.ribbon-track{display:flex;width:max-content;animation:mq 34s linear infinite}
+.ribbon:hover .ribbon-track{animation-play-state:paused}
+.ribbon span{font-family:var(--serif);font-size:clamp(48px, 8vw, 120px);line-height:1.05;white-space:nowrap;padding-right:.3em;color:transparent;-webkit-text-stroke:1px rgba(244,242,239,.35);transition:color .5s}
+.ribbon:hover span{color:rgba(225,6,0,.85);-webkit-text-stroke-color:transparent}
+.ribbon i{font-style:normal;font-size:.45em;vertical-align:middle;color:var(--red);-webkit-text-stroke:0}
+
+@media (max-width:900px){
+  #positioning .split > div:first-child{position:static !important}
+  .prism{--h:clamp(220px, 58vw, 320px)}
+  #positioning .pos-item{grid-template-columns:58px 1fr}
+  .pos-item .num{font-size:36px}
+  .route-label{font-size:9px;letter-spacing:.12em}
+}
+@media (max-width:640px){
+  .mq-item{width:200px}
+  .glass-panel{padding:22px}
+}
+
+@media (hover:none){
+  .pimg{clip-path:none;opacity:.55}
+  .fimg{opacity:.45}
+}
+
+/* Foundation paragraph sits straight on the video (no card); a soft shadow keeps it readable */
+.fnote{max-width:760px;margin:40px auto 0;font-size:17px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.85), 0 2px 18px rgba(0,0,0,.7)}
+.foundation .h2{text-shadow:0 2px 24px rgba(0,0,0,.6)}
+
+/* Card strip filling the gap between the sphere hero and the About section
+   (same tilted 3D marquee as the CTA, tilted the other way) */
+.mq-band{position:relative;height:clamp(260px, 36vh, 420px);overflow:hidden;isolation:isolate;background:#000}
+.mq-band .mq-scene{inset:-60% -15%;z-index:0}
+.mq-band .mq-plane{gap:18px;transform:rotateX(34deg) rotateZ(8deg)}
+.mq-band .mq-row{gap:18px}
+.mq-band .mq-item{width:230px}
+.mq-band::after{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg, #000 0%, transparent 26%, transparent 70%, #000 100%),
+             radial-gradient(ellipse 85% 80% at 50% 50%, transparent 45%, rgba(0,0,0,.65) 100%);
+}
+@media (max-width:640px){
+  .mq-band{height:220px}
+  .mq-band .mq-item{width:140px}
+  .mq-band .mq-plane{transform:rotateX(30deg) rotateZ(8deg)}
+}
+
+/* lighter Engagement background: keep card text readable with a soft shadow */
+.engage .h2, .engage .eyebrow{text-shadow:0 2px 18px rgba(0,0,0,.65)}
+.path.beam{background:rgba(10,8,8,.58)}
+.path.beam:nth-child(2){background:rgba(70,4,2,.55)}
+.engage .path .badge{background:rgba(0,0,0,.55);color:#ff4a3d;box-shadow:inset 0 0 0 1px rgba(225,6,0,.6)}
+.engage .eyebrow{color:#ff4a3d}

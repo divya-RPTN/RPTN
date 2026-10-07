@@ -1,0 +1,22 @@
+# dependencies / build output (none today, kept out if added later)
+node_modules/
+dist/
+build/
+
+# environment files and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# logs
+*.log
+npm-debug.log*
+
+# editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
